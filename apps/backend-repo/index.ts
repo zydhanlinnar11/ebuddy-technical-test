@@ -15,7 +15,7 @@ import AuthMiddleware from './middleware/auth_middleware'
 async function main() {
   const app = express()
   app.use(express.json({ limit: '100kb' }))
-  const port = 3000
+  const port = process.env.PORT ?? 3000
 
   // Libraries
   const firebase = initializeFirebase()
