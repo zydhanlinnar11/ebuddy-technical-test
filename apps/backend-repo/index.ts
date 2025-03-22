@@ -10,6 +10,7 @@ import { getAuth } from 'firebase-admin/auth'
 import { FirestoreCredentialRepository } from './repository/credential_repository'
 import AuthController from './controller/auth_controller'
 import AuthRoute from './routes/auth_route'
+import AuthMiddleware from './middleware/auth_middleware'
 
 async function main() {
   const app = express()
@@ -26,12 +27,15 @@ async function main() {
   const userRepository = new FirestoreUserRepository(firestore)
   const credRepository = new FirestoreCredentialRepository(firestore)
 
+  // Middleware
+  const authMiddleware = new AuthMiddleware(auth)
+
   // Controllers
   const userController = new UserController(userRepository)
   const authController = new AuthController(credRepository, auth)
 
   // Routes
-  const userRoute = new UserRoute(userController)
+  const userRoute = new UserRoute(userController, authMiddleware)
   const authRoute = new AuthRoute(authController)
 
   userRoute.setup(app)
