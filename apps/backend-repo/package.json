@@ -1,0 +1,11 @@
+{
+  "name": "backend-repo",
+  "main": "index.js",
+  "scripts": {},
+  "author": "zydhanlinnar11@gmail.com",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
