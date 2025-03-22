@@ -1,5 +1,6 @@
 import { Handler, Response } from 'express'
 import { Auth } from 'firebase-admin/auth'
+import { AuthenticatedRequest } from '../types/auth_request'
 
 export default class AuthMiddleware {
   private _auth: Auth
@@ -8,7 +9,7 @@ export default class AuthMiddleware {
     this._auth = auth
   }
 
-  authMiddleware: Handler = async (req, res, next) => {
+  authMiddleware: Handler = async (req: AuthenticatedRequest, res, next) => {
     const authHeader = req.headers.authorization ?? ''
     const [type, payload] = authHeader.split(' ')
     if (type !== 'Bearer') {
@@ -17,7 +18,10 @@ export default class AuthMiddleware {
     }
 
     try {
-      this._auth.verifyIdToken(payload)
+      const { sub } = await this._auth.verifyIdToken(payload)
+
+      req.userId = sub
+      next()
     } catch (e) {
       this.sendUnauthorizedResponse(res)
     }

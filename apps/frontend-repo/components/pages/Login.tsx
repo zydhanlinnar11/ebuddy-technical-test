@@ -11,20 +11,15 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import MuiCard from '@mui/material/Card'
 import { styled } from '@mui/material/styles'
-import { InferType, object, string, ValidationError } from 'yup'
 import { useRouter } from 'next/navigation'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithCustomToken } from 'firebase/auth'
 import { app } from '../../config/firebase'
 import { setAuthState } from '../../store/auth'
 import { useState } from 'react'
 import { Alert } from '@mui/material'
-
-export const credsSchema = object({
-  email: string().required().email(),
-  password: string().required(),
-})
-
-export type Credential = InferType<typeof credsSchema>
+import { backendUrl } from '../../config/fetcher'
+import Credential, { credsSchema } from '@repo/shared-objects/models/credential'
+import { ZodError } from 'zod'
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -101,13 +96,15 @@ export default function Login() {
     clearErrors()
     setSubmitting(true)
     try {
-      const validated = credsSchema.validateSync(data, { abortEarly: false })
+      const validated = credsSchema.parse(data)
+      const res = await fetch(`${backendUrl}/token`, {
+        method: 'POST',
+        body: JSON.stringify(validated),
+      })
+      const { token } = await res.json()
+
       const auth = getAuth(app)
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        validated.email,
-        validated.password
-      )
+      const userCredential = await signInWithCustomToken(auth, token)
       const user = userCredential.user
 
       dispatch(
@@ -123,10 +120,10 @@ export default function Login() {
         setError('root', { message: 'Invalid username or password!' })
         return
       }
-      if (!(e instanceof ValidationError)) {
+      if (!(e instanceof ZodError)) {
         throw e
       }
-      e.inner.forEach((e) => {
+      e.errors.forEach((e) => {
         setError(e.path as any, { message: e.message })
       })
     } finally {

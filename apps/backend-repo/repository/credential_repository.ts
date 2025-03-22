@@ -1,6 +1,6 @@
 export default interface CredentialRepository {
   hashedPasswordByEmail(email: string): Promise<string | null>
-  userIdByEmail(email: string): Promise<number | null>
+  userIdByEmail(email: string): Promise<string | null>
 }
 
 const COLLECTION_NAME = 'users'
@@ -33,7 +33,7 @@ export class FirestoreCredentialRepository implements CredentialRepository {
     return data?.password ?? null
   }
 
-  async userIdByEmail(email: string): Promise<number | null> {
+  async userIdByEmail(email: string): Promise<string | null> {
     const data = await this.dataByEmail(email)
 
     return data?.id ?? null

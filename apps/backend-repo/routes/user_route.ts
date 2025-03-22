@@ -14,7 +14,7 @@ export default class UserRoute {
   public setup(app: express.Express) {
     app.get(
       '/fetch-user-data',
-      // this._authMiddleware.authMiddleware,
+      this._authMiddleware.authMiddleware,
       this._controller.fetchUserData
     )
     app.post(

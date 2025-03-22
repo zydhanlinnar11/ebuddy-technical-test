@@ -1,8 +1,9 @@
 import { Handler, Response } from 'express'
 import CredentialRepository from '../repository/credential_repository'
-import { object, string, ValidationError } from 'yup'
 import { compareSync } from 'bcryptjs'
 import { Auth } from 'firebase-admin/auth'
+import { ZodError } from 'zod'
+import { credsSchema } from '@repo/shared-objects/models/credential'
 
 export default class AuthController {
   private _credRepo: CredentialRepository
@@ -14,19 +15,14 @@ export default class AuthController {
   }
 
   createToken: Handler = async (req, res, next) => {
-    const schema = object({
-      email: string().email().required(),
-      password: string().required(),
-    })
-
     try {
-      const credential = await schema.validate(req.body)
+      const credential = credsSchema.parse(JSON.parse(req.body))
 
       const [userId, hashedPassword] = await Promise.all([
         await this._credRepo.userIdByEmail(credential.email),
         await this._credRepo.hashedPasswordByEmail(credential.email),
       ])
-      console.log({ userId, hashedPassword })
+
       if (
         hashedPassword === null ||
         userId === null ||
@@ -36,13 +32,13 @@ export default class AuthController {
         return
       }
 
-      const token = await this._auth.createCustomToken(`${userId}`)
+      const token = await this._auth.createCustomToken(userId)
       res.json({
         message: 'OK',
         token,
       })
     } catch (e) {
-      if (!(e instanceof ValidationError)) {
+      if (!(e instanceof ZodError)) {
         next(e)
         return
       }

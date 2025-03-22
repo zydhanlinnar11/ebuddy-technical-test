@@ -1,11 +1,11 @@
-import { object, number, string, InferType } from 'yup'
+import { z } from 'zod'
 
-export const userSchema = object({
-  id: number().required(),
-  name: string().required(),
-  email: string().email().required(),
+export const userSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
 })
 
-type User = InferType<typeof userSchema>
+type User = z.infer<typeof userSchema>
 
 export default User

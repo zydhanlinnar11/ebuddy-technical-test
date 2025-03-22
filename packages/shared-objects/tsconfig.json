@@ -12,5 +12,5 @@
     "skipLibCheck": true
   },
   "compileOnSave": true,
-  "include": ["models/user.ts"]
+  "include": ["models/*.ts"]
 }

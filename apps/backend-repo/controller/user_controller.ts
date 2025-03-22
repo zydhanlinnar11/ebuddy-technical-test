@@ -1,7 +1,8 @@
 import { Handler, Response } from 'express'
 import UserRepository from '../repository/user_repository'
-import { ValidationError } from 'yup'
 import { userSchema } from '@repo/shared-objects/models/user'
+import { ZodError } from 'zod'
+import { AuthenticatedRequest } from '../types/auth_request'
 
 export default class UserController {
   private _repo: UserRepository
@@ -10,32 +11,9 @@ export default class UserController {
     this._repo = repo
   }
 
-  fetchUserData: Handler = async (req, res, next) => {
+  fetchUserData: Handler = async (req: AuthenticatedRequest, res, next) => {
     try {
-      let id: number | null = null
-      if (typeof req.query.id === 'string') {
-        id = Number.parseInt(req.query.id)
-      } else if (
-        Array.isArray(req.query.id) &&
-        req.query.id.length > 0 &&
-        typeof req.query.id[0] === 'string'
-      ) {
-        id = Number.parseInt(req.query.id[0])
-      }
-
-      if (id === null) {
-        const users = await this._repo.getAll()
-
-        res.json(users)
-        return
-      }
-
-      const user = await this._repo.getById(id)
-
-      if (user === null) {
-        this.sendUserNotFoundResponse(res, id)
-        return
-      }
+      const user = await this._repo.getById(req.userId ?? '')
 
       res.json(user)
     } catch (e) {
@@ -43,14 +21,18 @@ export default class UserController {
     }
   }
 
-  updateUserData: Handler = async (req, res, next) => {
+  updateUserData: Handler = async (req: AuthenticatedRequest, res, next) => {
     try {
-      const user = await userSchema.validate(req.body)
+      const { body } = req
+      if (body) {
+        body.id = req.userId ?? ''
+      }
+      const user = userSchema.parse(req.body)
 
       await this._repo.save(user)
       res.json({ message: 'OK' })
     } catch (e) {
-      if (!(e instanceof ValidationError)) {
+      if (!(e instanceof ZodError)) {
         next(e)
         return
       }
@@ -58,10 +40,5 @@ export default class UserController {
       res.status(400)
       res.json({ message: e.message })
     }
-  }
-
-  private sendUserNotFoundResponse = (res: Response, id: number) => {
-    res.status(404)
-    res.json({ message: `User ID ${id} is not found` })
   }
 }

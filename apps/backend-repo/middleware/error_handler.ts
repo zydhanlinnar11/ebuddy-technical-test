@@ -7,7 +7,7 @@ export const notFoundHandler: Handler = async (req, res, next) => {
 }
 
 const errorHandler: ErrorRequestHandler = async (err, req, res, next) => {
-  console.error(err.stack)
+  console.error(err)
   res.status(500).json({
     message: 'internal_server_error',
   })

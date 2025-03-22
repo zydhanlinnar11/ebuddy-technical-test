@@ -3,6 +3,7 @@ import initializeFirebase from './config/firebase'
 import { getFirestore } from 'firebase-admin/firestore'
 import { faker } from '@faker-js/faker'
 import { hashSync } from 'bcryptjs'
+import { v4 as uuidv4 } from 'uuid'
 
 async function main() {
   // Libraries
@@ -27,7 +28,7 @@ async function main() {
 
     console.log(`Generating ${numberOfData} data`)
     for (let i = 0; i < numberOfData; i++) {
-      const id = i + 1
+      const id = uuidv4()
       const ref = firestore.collection('users').doc(`${id}`)
 
       t.set(ref, {
