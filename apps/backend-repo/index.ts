@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import errorHandler, { notFoundHandler } from './middleware/error_handler'
 import UserController from './controller/user_controller'
