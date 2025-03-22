@@ -11,41 +11,36 @@ import { FirestoreCredentialRepository } from './repository/credential_repositor
 import AuthController from './controller/auth_controller'
 import AuthRoute from './routes/auth_route'
 import AuthMiddleware from './middleware/auth_middleware'
+import { onRequest } from 'firebase-functions/v2/https'
 
-async function main() {
-  const app = express()
-  app.use(express.json({ limit: '100kb' }))
-  const port = process.env.PORT ?? 3000
+const expressApp = express()
+expressApp.use(express.json({ limit: '100kb' }))
 
-  // Libraries
-  const firebase = initializeFirebase()
+// Libraries
+const firebase = initializeFirebase()
 
-  const auth = getAuth(firebase)
-  const firestore = getFirestore(firebase)
+const auth = getAuth(firebase)
+const firestore = getFirestore(firebase)
 
-  // Repositories
-  const userRepository = new FirestoreUserRepository(firestore)
-  const credRepository = new FirestoreCredentialRepository(firestore)
+// Repositories
+const userRepository = new FirestoreUserRepository(firestore)
+const credRepository = new FirestoreCredentialRepository(firestore)
 
-  // Middleware
-  const authMiddleware = new AuthMiddleware(auth)
+// Middleware
+const authMiddleware = new AuthMiddleware(auth)
 
-  // Controllers
-  const userController = new UserController(userRepository)
-  const authController = new AuthController(credRepository, auth)
+// Controllers
+const userController = new UserController(userRepository)
+const authController = new AuthController(credRepository, auth)
 
-  // Routes
-  const userRoute = new UserRoute(userController, authMiddleware)
-  const authRoute = new AuthRoute(authController)
+// Routes
+const userRoute = new UserRoute(userController, authMiddleware)
+const authRoute = new AuthRoute(authController)
 
-  userRoute.setup(app)
-  authRoute.setup(app)
+userRoute.setup(expressApp)
+authRoute.setup(expressApp)
 
-  app.use(notFoundHandler)
-  app.use(errorHandler)
-  app.listen(port, () => {
-    console.log(`Backend is listening on port ${port}`)
-  })
-}
+expressApp.use(notFoundHandler)
+expressApp.use(errorHandler)
 
-main()
+export const app = onRequest({ region: 'asia-southeast2' }, expressApp)

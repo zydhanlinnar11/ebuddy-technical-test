@@ -1,24 +1,42 @@
 {
   "name": "backend-repo",
-  "main": "index.js",
   "author": "zydhanlinnar11@gmail.com",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node --import=tsx index.ts",
+    "lint": "eslint --ext .js,.ts .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
     "seed": "node --import=tsx seed.ts"
   },
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/index.js",
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase-admin": "^13.1.0",
+    "firebase-functions": "^6.0.1",
     "yup": "^1.6.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.4.0",
     "@types/express": "^5.0.0",
-    "tsx": "^4.19.2"
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^3.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
   }
 }
