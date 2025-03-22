@@ -57,10 +57,12 @@ export class FirestoreUserRepository implements UserRepository {
       .get()
 
     if (!snap.exists) return null
-    return {
+    const user = {
       id,
       ...snap.data(),
     } as any
+    delete user.password
+    return user
   }
 
   async getAll(): Promise<User[]> {
@@ -71,19 +73,25 @@ export class FirestoreUserRepository implements UserRepository {
     snaps.forEach((snap) => {
       if (!snap.exists) return
 
-      users.push({
+      const user = {
         id: Number.parseInt(snap.ref.id),
         ...snap.data(),
-      } as any)
+      } as any
+      delete user.password
+
+      users.push(user)
     })
 
     return users
   }
 
   async save(user: User): Promise<void> {
-    await this._firestore.collection(COLLECTION_NAME).doc(`${user.id}`).set({
-      name: user.name,
-      email: user.email,
-    })
+    await this._firestore.collection(COLLECTION_NAME).doc(`${user.id}`).set(
+      {
+        name: user.name,
+        email: user.email,
+      },
+      { merge: true }
+    )
   }
 }

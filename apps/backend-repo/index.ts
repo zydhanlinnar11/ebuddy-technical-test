@@ -6,6 +6,10 @@ import { FirestoreUserRepository } from './repository/user_repository'
 import UserRoute from './routes/user_route'
 import initializeFirebase from './config/firebase'
 import { getFirestore } from 'firebase-admin/firestore'
+import { getAuth } from 'firebase-admin/auth'
+import { FirestoreCredentialRepository } from './repository/credential_repository'
+import AuthController from './controller/auth_controller'
+import AuthRoute from './routes/auth_route'
 
 async function main() {
   const app = express()
@@ -15,17 +19,23 @@ async function main() {
   // Libraries
   const firebase = initializeFirebase()
 
+  const auth = getAuth(firebase)
   const firestore = getFirestore(firebase)
 
   // Repositories
   const userRepository = new FirestoreUserRepository(firestore)
+  const credRepository = new FirestoreCredentialRepository(firestore)
 
   // Controllers
   const userController = new UserController(userRepository)
+  const authController = new AuthController(credRepository, auth)
 
   // Routes
   const userRoute = new UserRoute(userController)
+  const authRoute = new AuthRoute(authController)
+
   userRoute.setup(app)
+  authRoute.setup(app)
 
   app.use(notFoundHandler)
   app.use(errorHandler)
