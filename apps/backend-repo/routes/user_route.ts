@@ -10,5 +10,6 @@ export default class UserRoute {
 
   public setup(app: express.Express) {
     app.get('/fetch-user-data', this._controller.fetchUserData)
+    app.post('/update-user-data', this._controller.updateUserData)
   }
 }

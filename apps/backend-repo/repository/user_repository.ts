@@ -40,3 +40,50 @@ export class StaticUserRepository implements UserRepository {
     }
   }
 }
+
+const COLLECTION_NAME = 'users'
+
+export class FirestoreUserRepository implements UserRepository {
+  private _firestore: FirebaseFirestore.Firestore
+
+  constructor(firestore: FirebaseFirestore.Firestore) {
+    this._firestore = firestore
+  }
+
+  async getById(id: number): Promise<User | null> {
+    const snap = await this._firestore
+      .collection(COLLECTION_NAME)
+      .doc(`${id}`)
+      .get()
+
+    if (!snap.exists) return null
+    return {
+      id,
+      ...snap.data(),
+    } as any
+  }
+
+  async getAll(): Promise<User[]> {
+    const snaps = await this._firestore.collection(COLLECTION_NAME).get()
+
+    let users: User[] = []
+
+    snaps.forEach((snap) => {
+      if (!snap.exists) return
+
+      users.push({
+        id: Number.parseInt(snap.ref.id),
+        ...snap.data(),
+      } as any)
+    })
+
+    return users
+  }
+
+  async save(user: User): Promise<void> {
+    await this._firestore.collection(COLLECTION_NAME).doc(`${user.id}`).set({
+      name: user.name,
+      email: user.email,
+    })
+  }
+}

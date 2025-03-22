@@ -1,14 +1,21 @@
 {
   "name": "backend-repo",
   "main": "index.js",
-  "scripts": {},
   "author": "zydhanlinnar11@gmail.com",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "start": "node --import=tsx index.ts",
+    "seed": "node --import=tsx seed.ts"
+  },
   "dependencies": {
-    "express": "^4.21.2"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.1.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
     "@types/express": "^5.0.0",
     "tsx": "^4.19.2"
   }
