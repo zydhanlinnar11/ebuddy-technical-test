@@ -12,6 +12,7 @@ import AuthController from './controller/auth_controller'
 import AuthRoute from './routes/auth_route'
 import AuthMiddleware from './middleware/auth_middleware'
 import { onRequest } from 'firebase-functions/v2/https'
+import cors from 'cors'
 
 const expressApp = express()
 expressApp.use(express.json({ limit: '100kb' }))
@@ -37,6 +38,7 @@ const authController = new AuthController(credRepository, auth)
 const userRoute = new UserRoute(userController, authMiddleware)
 const authRoute = new AuthRoute(authController)
 
+expressApp.use(cors())
 userRoute.setup(expressApp)
 authRoute.setup(expressApp)
 

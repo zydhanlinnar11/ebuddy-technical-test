@@ -1,4 +1,4 @@
-import User from '../models/user'
+import User from '@repo/shared-objects/models/user'
 
 export default interface UserRepository {
   getById(id: number): Promise<User | null>

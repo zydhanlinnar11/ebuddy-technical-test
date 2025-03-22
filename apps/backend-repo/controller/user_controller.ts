@@ -1,7 +1,7 @@
 import { Handler, Response } from 'express'
 import UserRepository from '../repository/user_repository'
-import { userSchema } from '../models/user'
 import { ValidationError } from 'yup'
+import { userSchema } from '@repo/shared-objects/models/user'
 
 export default class UserController {
   private _repo: UserRepository
