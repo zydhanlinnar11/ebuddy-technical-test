@@ -157,7 +157,7 @@ const HomeCardInner = () => {
     } catch (e) {
       dispatch(setUpdateUserState('error'))
       if (!(e instanceof ZodError)) {
-        setError('root', { message: 'Unable to fetch user data' })
+        setError('root', { message: 'Unable to update user data' })
         return
       }
       e.errors.forEach((e) => {
