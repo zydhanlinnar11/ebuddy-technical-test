@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from './auth'
+import updateUserReducer from './updateUser'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       auth: authReducer,
+      updateUser: updateUserReducer,
     },
   })
 }
