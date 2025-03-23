@@ -13,7 +13,10 @@ const Providers = ({ children }: PropsWithChildren) => {
     // Create the store instance the first time this renders
     storeRef.current = makeStore()
     const auth = getAuth(app)
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        localStorage.setItem('token', await user.getIdToken())
+      }
       storeRef.current?.dispatch(
         setAuthState({
           loading: false,
