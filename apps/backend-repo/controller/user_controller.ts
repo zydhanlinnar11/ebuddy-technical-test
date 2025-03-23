@@ -23,11 +23,11 @@ export default class UserController {
 
   updateUserData: Handler = async (req: AuthenticatedRequest, res, next) => {
     try {
-      const { body } = req
+      const body = JSON.parse(req.body)
       if (body) {
         body.id = req.userId ?? ''
       }
-      const user = userSchema.parse(req.body)
+      const user = userSchema.parse(body)
 
       await this._repo.save(user)
       res.json({ message: 'OK' })
