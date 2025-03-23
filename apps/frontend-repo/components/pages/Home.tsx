@@ -24,57 +24,6 @@ import User from '@repo/shared-objects/models/user'
 import { setUpdateUserState } from '../../store/updateUser'
 
 export default function Home() {
-  const { loading, userId } = useAppSelector((state) => state.auth)
-  const dispatch = useAppDispatch()
-  const {
-    register,
-    handleSubmit,
-    setError,
-    clearErrors,
-    formState: { errors },
-  } = useForm<Credential>()
-  const router = useRouter()
-  const [isSubmitting, setSubmitting] = useState(false)
-
-  const submitForm: SubmitHandler<Credential> = async (data) => {
-    clearErrors()
-    setSubmitting(true)
-    try {
-      const validated = credsSchema.parse(data)
-      const res = await fetch(`${backendUrl}/token`, {
-        method: 'POST',
-        body: JSON.stringify(validated),
-      })
-      const { token } = await res.json()
-
-      const auth = getAuth(app)
-      const userCredential = await signInWithCustomToken(auth, token)
-      const user = userCredential.user
-
-      dispatch(
-        setAuthState({
-          loading: false,
-          userId: user.uid,
-        })
-      )
-      router.push('/')
-    } catch (e) {
-      // @ts-expect-error
-      if (e.code === 'auth/invalid-credential') {
-        setError('root', { message: 'Invalid username or password!' })
-        return
-      }
-      if (!(e instanceof ZodError)) {
-        throw e
-      }
-      e.errors.forEach((e) => {
-        setError(e.path as any, { message: e.message })
-      })
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   return (
     <>
       <CssBaseline enableColorScheme />
