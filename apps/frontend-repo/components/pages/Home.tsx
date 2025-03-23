@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/navigation'
-import { getAuth, signInWithCustomToken } from 'firebase/auth'
+import { getAuth, signInWithCustomToken, signOut } from 'firebase/auth'
 import { app } from '../../config/firebase'
 import { setAuthState } from '../../store/auth'
 import { useEffect, useState } from 'react'
@@ -166,6 +166,18 @@ const HomeCardInner = () => {
     }
   }
 
+  const logout = async () => {
+    dispatch(setUpdateUserState('loading'))
+    try {
+      const auth = getAuth(app)
+      await signOut(auth)
+      dispatch(setUpdateUserState('success'))
+    } catch (e) {
+      dispatch(setUpdateUserState('error'))
+      setError('root', { message: 'Unable to logging you out' })
+    }
+  }
+
   if (isLoadingAuth || isLoadingUser)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: '2rem' }}>
@@ -269,6 +281,15 @@ const HomeCardInner = () => {
         disabled={updateUserState === 'loading'}
       >
         Update data
+      </Button>
+      <Button
+        type="button"
+        fullWidth
+        variant="outlined"
+        disabled={updateUserState === 'loading'}
+        onClick={logout}
+      >
+        Log out
       </Button>
     </Box>
   )
