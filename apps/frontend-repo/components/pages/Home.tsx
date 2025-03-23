@@ -9,19 +9,16 @@ import FormControl from '@mui/material/FormControl'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/navigation'
-import { getAuth, signInWithCustomToken, signOut } from 'firebase/auth'
+import { getAuth, signOut } from 'firebase/auth'
 import { app } from '../../config/firebase'
-import { setAuthState } from '../../store/auth'
 import { useEffect, useState } from 'react'
 import { Alert, CircularProgress } from '@mui/material'
-import { backendUrl } from '../../config/fetcher'
-import Credential, { credsSchema } from '@repo/shared-objects/models/credential'
 import { string, z, ZodError } from 'zod'
 import PageContainer from '../molecules/Container'
 import Card from '../molecules/Card'
 import { useUser } from '../../hooks/useUser'
-import User from '@repo/shared-objects/models/user'
 import { setUpdateUserState } from '../../store/updateUser'
+import { updateUserData, UserPayload } from '../../apis/userApi'
 
 export default function Home() {
   return (
@@ -42,8 +39,6 @@ export default function Home() {
     </>
   )
 }
-
-type UserPayload = Omit<User, 'id'>
 
 const HomeCardInner = () => {
   const [isShouldFetch, setShouldFetch] = useState(false)
@@ -89,17 +84,7 @@ const HomeCardInner = () => {
         email: string().email(),
       })
       const validated = schema.parse(data)
-      const res = await fetch(`${backendUrl}/update-user-data`, {
-        method: 'POST',
-        body: JSON.stringify(validated),
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-
-      if (!res.ok) {
-        throw new Error(`HTTP status code: ${res.status}`)
-      }
+      await updateUserData(validated)
 
       await refetchData()
       dispatch(setUpdateUserState('success'))

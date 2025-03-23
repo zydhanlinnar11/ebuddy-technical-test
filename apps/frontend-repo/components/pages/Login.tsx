@@ -14,11 +14,11 @@ import { app } from '../../config/firebase'
 import { setAuthState } from '../../store/auth'
 import { useState } from 'react'
 import { Alert } from '@mui/material'
-import { backendUrl } from '../../config/fetcher'
 import Credential, { credsSchema } from '@repo/shared-objects/models/credential'
 import { ZodError } from 'zod'
 import PageContainer from '../molecules/Container'
 import Card from '../molecules/Card'
+import { tokenFromCredentials } from '../../apis/authApi'
 
 export default function Login() {
   const { loading, userId } = useAppSelector((state) => state.auth)
@@ -38,11 +38,7 @@ export default function Login() {
     setSubmitting(true)
     try {
       const validated = credsSchema.parse(data)
-      const res = await fetch(`${backendUrl}/token`, {
-        method: 'POST',
-        body: JSON.stringify(validated),
-      })
-      const { token } = await res.json()
+      const token = await tokenFromCredentials(validated)
 
       const auth = getAuth(app)
       const userCredential = await signInWithCustomToken(auth, token)
